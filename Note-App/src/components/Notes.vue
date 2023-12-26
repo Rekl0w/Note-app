@@ -113,6 +113,9 @@ watch(selectedNote, () => {
             <img src="../assets/delete.png" />
           </button>
         </li>
+        <p v-if="notes.length === 0" class="text-gray-500">
+          Not bulunamadı.
+      </p>
       </ul>
     </div>
     <div class="content flex-1 p-4">

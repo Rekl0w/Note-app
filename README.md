@@ -22,7 +22,7 @@ To get started with this project, clone it to your local machine and follow the 
 
 ```bash
 git clone https://github.com/Rekl0w/Note-app.git
-cd Note-App
+cd Note-app
 npm install
 npm run dev
 ```

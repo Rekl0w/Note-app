@@ -2,11 +2,11 @@
 import { ref, watch } from "vue";
 
 const notes = ref([
-  { title: "Not 1", content: "Bu birinci notun içeriğidir." },
-  { title: "Not 2", content: "Bu ikinci notun içeriğidir." },
-  { title: "Not 3", content: "Bu üçüncü notun içeriğidir." },
-  { title: "Not 4", content: "Bu dördüncü notun içeriğidir." },
-  { title: "Not 5", content: "Bu beşinci notun içeriğidir." },
+  { title: "Note 1", content: "This is the content of the first note." },
+  { title: "Note 2", content: "This is the content of the second note." },
+  { title: "Note 3", content: "This is the content of the third note." },
+  { title: "Note 4", content: "This is the content of the fourth note." },
+  { title: "Note 5", content: "This is the content of the fifth note." },
 ]);
 
 let selectedNote = ref(null);
@@ -20,17 +20,15 @@ const selectNote = (index) => {
 };
 
 const search = () => {
-  notes.value.filter((note) => {
-    return note.title.includes(searchQuery.value);
+  return notes.value.filter((note) => {
+    return note.title.toLowerCase().includes(searchQuery.value.toLowerCase());
   });
 };
 
-const createNote = () => {
+const createNote = async () => {
   createNoteBool.value = true;
-  selectNote(notes.value.length);
-  setTimeout(() => {
-    saveNewNote();
-  }, 0);
+  await selectNote(notes.value.length);
+  saveNewNote();
 };
 
 const deleteNote = (index) => {
@@ -40,7 +38,7 @@ const deleteNote = (index) => {
 
 const saveNewNote = () => {
   if (newNoteTitle.value.trim() === "") {
-    newNoteTitle.value = "Yeni Not";
+    newNoteTitle.value = "New Note";
   }
 
   const newNote = {
@@ -50,8 +48,6 @@ const saveNewNote = () => {
 
   notes.value.push(newNote);
 
-  console.log(selectedNote.value);
-
   newNoteTitle.value = "";
   newNoteContent.value = "";
   createNoteBool.value = false;
@@ -59,7 +55,7 @@ const saveNewNote = () => {
 
 const controlNotes = () => {
   notes.value.forEach((note, index) => {
-    if (note.title === "Yeni Not" && note.content === "") {
+    if (note.title === "New Note" && note.content === "") {
       deleteNote(index);
     }
   });
@@ -72,12 +68,15 @@ watch(selectedNote, () => {
 
 <template>
   <div id="app" class="flex p-4 gap-3 bg-gray-100 bg">
-    <div class="sidebar h-full p-4 divide-x" style="min-width: 300px; overflow-y: auto;">
-      <div class="flex justify-between items-center w-full ">
+    <div
+      class="sidebar h-full p-4 divide-x"
+      style="min-width: 300px; overflow-y: auto"
+    >
+      <div class="flex justify-between items-center w-full">
         <h2
           class="text-2xl font-bold text-gray-800 justify-center items-center"
         >
-          Notlar
+          Notes
         </h2>
         <button
           class="justify-center items-center plusbutton"
@@ -97,15 +96,21 @@ watch(selectedNote, () => {
           </svg>
         </button>
       </div>
+      <input
+        v-model="searchQuery"
+        type="text"
+        placeholder="Search notes..."
+        class="w-full p-2 rounded mb-4"
+      />
       <ul class="w-full">
         <li
-          v-for="(note, index) in notes"
+          v-for="(note, index) in search()"
           :key="index"
           @click="selectNote(index)"
           class="cursor-pointer py-2 flex justify-between items-center"
         >
           {{
-            note.title.length > 20
+            notes && note.title.length > 20
               ? note.title.slice(0, 20) + "..."
               : note.title
           }}
@@ -113,13 +118,13 @@ watch(selectedNote, () => {
             <img src="../assets/delete.png" />
           </button>
         </li>
-        <p v-if="notes.length === 0" class="text-gray-500">
-          Not bulunamadı.
-      </p>
+        <p v-if="search().length === 0" class="text-gray-500">
+          No notes found.
+        </p>
       </ul>
     </div>
     <div class="content flex-1 p-4">
-      <div v-if="selectedNote !== null">
+      <div v-if="selectedNote !== null && notes[selectedNote]">
         <div class="topbar flex items-center justify-between mb-4">
           <div>
             <input
@@ -137,7 +142,7 @@ watch(selectedNote, () => {
       </div>
       <div v-else>
         <p class="text-gray-500">
-          Lütfen bir not seçin veya yeni bir not ekleyin.
+          Please select a note or add a new one.
         </p>
       </div>
     </div>
@@ -182,6 +187,18 @@ body {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
+}
+
+.sidebar input {
+  border: none;
+  border-radius: 4px;
+  padding: 10px;
+  width: 100%;
+  height: 36px;
+  margin-bottom: 20px;
+  position: sticky;
+  top: 40px;
+  z-index: 1;
 }
 
 .sidebar h2 {
